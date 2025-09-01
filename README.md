@@ -29,6 +29,43 @@ Loss Rate: 14.0%
 Recommendation: RAISE
 ```
 
+## How the math works
+
+The simulator uses **Monte Carlo simulation** to calculate win rates:
+
+1. **Deal random cards**: For each simulation, it deals random opponent cards and community cards
+2. **Check if opponent plays**: Only counts hands where the opponent would actually play (based on their style)
+3. **Compare hands**: Evaluates both your hand and opponent's hand to see who wins
+4. **Count results**: Tracks wins, ties, and losses
+5. **Calculate percentage**
+
+### How hand strength is calculated
+
+The program calculates hand strength to decide if opponents will play:
+
+**Pocket Pairs**:
+- Strength = rank × 8
+- Example: AA = 14 × 8 = 112, 22 = 2 × 8 = 16
+
+**Non-pairs**:
+- Strength = (rank1 + rank2) × 3 + bonuses
+- **Bonuses**: +10 for suited, +8 for connected, +4 for semi-connected
+- Example: AK suited = (14 + 13) × 3 + 10 = 81 + 10 = 91
+
+### How opponents decide to play
+
+Each opponent has a percentage range (like Rishi at 85%):
+- The program calculates the strength of their random cards
+- **Key calculation**: `percentile = (strength / max_strength) × 100`
+- **Decision**: If `percentile >= (100 - range_percent)`, they play the hand
+
+**The math**: 
+- Maximum possible strength = 14 × 8 = 112 (AA)
+- If opponent gets 72 offsuit: strength = 18, percentile = (18/112) × 100 = 16%
+- Since 16% < 15%, Rishi folds this weak hand
+- If opponent gets AK suited: strength = 91, percentile = (91/112) × 100 = 81%  
+- Since 81% > 15%, Rishi plays this strong hand
+
 ## Opponents
 
 - **Rishi (85%)**: Plays almost anything
@@ -47,3 +84,4 @@ I wanted to simulate poker hands against my friends' actual playing styles to se
 ## Author
 
 Alexander Krapels - alexandermkrapels@gmail.com
+
